@@ -15,17 +15,17 @@
 
 ## Turso 제약 (전략의 핵심 이유)
 
-Prisma의 `migrate dev` / `migrate deploy`는 **libSQL 원격(Turso)에 직접 동작하지 않는다.** 그래서 환경을 나눈다.
+Prisma CLI(마이그레이션/스키마 엔진)는 **`file:` URL만 받는다.** `libsql://`(Turso)을 주면 `P1013`으로 거부한다. 즉 `migrate dev` / `migrate deploy` / `migrate diff --from-config-datasource`가 Turso 원격에는 안 된다. (런타임 libSQL 어댑터는 Turso에 잘 붙지만, 이건 앱 쿼리용이지 마이그레이션 엔진이 아니다.) 그래서 환경을 나눈다.
 
 - **로컬 개발**: SQLite 파일(`file:./dev.db`)에 `prisma migrate dev`. shadow DB도 로컬 파일에서 자동으로 처리된다. 여기서 마이그레이션 파일이 만들어지고, 이 파일이 이력·리뷰의 원본이다.
-- **운영(Turso)**: `migrate deploy` 대신 **스키마 diff를 SQL로 뽑아** `prisma db execute`(또는 `turso db shell`)로 적용한다. diff는 "현재 운영 스키마 → 목표 스키마" 기준이라, 이력 테이블 없이도 목표 상태로 수렴한다.
+- **운영(Turso)**: 마이그레이션 파일의 SQL을 `prisma/migrate-turso.ts` 러너가 `@libsql/client`로 Turso에 직접 적용한다. Turso의 `_migrations` 테이블에 적용한 마이그레이션 이름을 기록해, 다음엔 미적용분만 순서대로 적용한다(전진형·멱등, `migrate deploy` 대체).
 
 ## 환경 매핑
 
 | 환경 | DB | 도구 | 이력 |
 |------|----|------|------|
 | 로컬 개발 | `file:./dev.db` (libSQL 어댑터) | `prisma migrate dev` | 로컬 `_prisma_migrations` + `prisma/migrations/` |
-| 운영 | Turso `libsql://…` (+ 토큰) | `migrate diff` → 리뷰 → `db execute` | git의 마이그레이션 파일 + 릴리스 기록 |
+| 운영 | Turso `libsql://…` (+ 토큰) | `migrate-turso.ts` 러너 (@libsql/client) | git의 마이그레이션 파일 + Turso `_migrations` 테이블 |
 
 ## 초기 baseline (db push → migrate 전환, 1회)
 
@@ -69,15 +69,15 @@ DATABASE_URL="libsql://<db>.turso.io"
 DATABASE_AUTH_TOKEN="<token>"
 ```
 
-1. **변경 SQL 생성 (현재 운영 스키마 → 목표 스키마):**
+1. **미적용 마이그레이션 확인:**
    ```bash
-   npm run db:migrate:plan   # 아래 스크립트 참고. 결과를 파일/화면으로 출력
+   npm run db:migrate:plan   # 아직 Turso 에 안 들어간 마이그레이션 파일과 SQL 출력(적용 안 함)
    ```
 2. **사람이 SQL을 리뷰한다.** 파괴적 구문(`DROP COLUMN`, `DROP TABLE`, `NOT NULL` 강제)이 있으면 데이터 영향과 백필 필요 여부를 판단한다.
 3. **위험한 변경 전에는 Turso 백업/브랜치로 먼저 시험한다** (아래 안전 규칙).
 4. **적용:**
    ```bash
-   npm run db:migrate:prod   # diff SQL 을 db execute 로 Turso 에 적용
+   npm run db:migrate:prod   # 미적용 마이그레이션 파일을 순서대로 Turso 에 적용 + _migrations 기록
    ```
 5. 릴리스 노트/커밋에 "무엇을 언제 적용했는지" 남긴다.
 
@@ -85,19 +85,21 @@ DATABASE_AUTH_TOKEN="<token>"
 
 ```jsonc
 {
-  // 로컬: 마이그레이션 생성·적용 (이미 있음)
+  // 로컬: 마이그레이션 생성·적용
   "db:migrate": "dotenv -e .env.local -- prisma migrate dev",
 
-  // 운영 반영 계획: 현재 Turso 스키마와 목표 스키마의 차이를 SQL 로 출력 (적용 안 함)
-  "db:migrate:plan": "dotenv -e .env.production.local -- prisma migrate diff --from-config-datasource --to-schema ./prisma/schema --script",
+  // 운영(Turso): 미적용 마이그레이션 확인(적용 안 함)
+  "db:migrate:plan": "dotenv -e .env.production.local -- tsx prisma/migrate-turso.ts --dry",
+  // 운영(Turso): 미적용 마이그레이션을 순서대로 적용
+  "db:migrate:prod": "dotenv -e .env.production.local -- tsx prisma/migrate-turso.ts",
 
-  // 운영 반영 실행: 위 diff 를 그대로 Turso 에 적용
-  "db:migrate:prod": "dotenv -e .env.production.local -- sh -c 'prisma migrate diff --from-config-datasource --to-schema ./prisma/schema --script | prisma db execute --stdin'"
+  // 운영 데이터: 고정 리그/학과 + 부트스트랩 admin / 참가자 데이터
+  "db:seed:prod": "dotenv -e .env.production.local -- prisma db seed",
+  "db:import:prod": "dotenv -e .env.production.local -- tsx prisma/import.ts"
 }
 ```
 
-- `--from-config-datasource`는 `prisma.config.ts`의 datasource(= `DATABASE_URL`)를 읽어 **현재 운영 스키마를 원격에서 introspect**한다.
-- `db:migrate:plan`을 먼저 돌려 SQL을 눈으로 확인한 뒤에만 `db:migrate:prod`를 실행한다.
+**왜 diff+execute 가 아니라 러너인가.** Prisma CLI(스키마 엔진)는 `file:` URL만 받아 Turso(`libsql://`)에 직접 마이그레이션을 못 한다(`P1013`). 그래서 `prisma/migrate-turso.ts`가 `prisma/migrations/*/migration.sql`을 `@libsql/client`로 Turso에 직접 적용하고, Turso의 `_migrations` 테이블로 적용 이력을 추적한다(전진형·멱등, libsql용 `migrate deploy` 대체). 로컬 마이그레이션 파일이 원본이다.
 
 ## 참조·시드 데이터
 
