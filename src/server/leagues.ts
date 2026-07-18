@@ -16,7 +16,7 @@ export const listLeagues = createServerFn({ method: 'GET' })
 
 export const createLeague = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: unknown) => leagueCreateSchema.parse(d))
+  .validator((d: unknown) => leagueCreateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const league = await prisma.league.create({ data });
     await writeAudit(context.user.id, 'CREATE', 'League', league.id, data);
@@ -25,7 +25,7 @@ export const createLeague = createServerFn({ method: 'POST' })
 
 export const updateLeague = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: unknown) => leagueUpdateSchema.parse(d))
+  .validator((d: unknown) => leagueUpdateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     const league = await prisma.league.update({ where: { id }, data: rest });
@@ -35,7 +35,7 @@ export const updateLeague = createServerFn({ method: 'POST' })
 
 export const deleteLeague = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: { id: string }) => {
+  .validator((d: { id: string }) => {
     if (!d?.id) throw new Error('id가 필요합니다.');
     return { id: d.id };
   })

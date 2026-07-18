@@ -1,39 +1,78 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
 
-import { logout } from '../../server/auth';
+import { getStats } from '../../server/stats';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const Route = createFileRoute('/_authed/')({
-  component: Home,
+  component: Dashboard,
 });
 
-function Home() {
-  const { user } = Route.useRouteContext();
-  const router = useRouter();
-
-  async function onLogout() {
-    await logout();
-    await router.invalidate();
-    await router.navigate({ to: '/login' });
-  }
+function Dashboard() {
+  const { data, isLoading } = useQuery({ queryKey: ['stats'], queryFn: () => getStats() });
 
   return (
-    <div className="min-h-screen bg-[#010102] px-8 py-6 text-[#f7f8f8]">
-      <div className="mx-auto flex max-w-5xl items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">공모전 운영 Admin</h1>
-          <p className="mt-1 text-sm text-[#8a8f98]">{user.name}님으로 로그인됨</p>
-        </div>
-        <button
-          onClick={onLogout}
-          className="rounded-md border border-[#23252a] bg-[#0f1011] px-3 py-2 text-sm text-[#f7f8f8] hover:border-[#34343a]"
-        >
-          로그아웃
-        </button>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">대시보드</h1>
+        <p className="mt-1 text-sm text-muted-foreground">공모전 현황 요약</p>
       </div>
 
-      <p className="mx-auto mt-10 max-w-5xl text-[#8a8f98]">
-        인증 골격 완료. 다음 단계에서 팀/팀원/학과/리그 화면을 여기에 붙입니다.
-      </p>
+      {isLoading || !data ? (
+        <p className="text-sm text-muted-foreground">불러오는 중…</p>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <StatCard label="총 팀" value={data.teamCount} />
+            <StatCard label="총 인원" value={data.memberCount} />
+            <StatCard label="팀장" value={data.leaderCount} />
+            <StatCard label="중도하차" value={data.droppedCount} />
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <DistributionCard title="학과별 인원" rows={data.byDepartment} />
+            <DistributionCard title="리그별 팀" rows={data.byLeague} />
+          </div>
+        </>
+      )}
     </div>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-normal text-muted-foreground">{label}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-3xl font-semibold tracking-tight">{value}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function DistributionCard({ title, rows }: { title: string; rows: Array<{ name: string; count: number }> }) {
+  const max = Math.max(1, ...rows.map((r) => r.count));
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {rows.length === 0 && <p className="text-sm text-muted-foreground">데이터 없음</p>}
+        {rows.map((r) => (
+          <div key={r.name} className="space-y-1">
+            <div className="flex justify-between text-sm">
+              <span className="text-foreground">{r.name}</span>
+              <span className="text-muted-foreground">{r.count}</span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+              <div className="h-full rounded-full bg-primary" style={{ width: `${(r.count / max) * 100}%` }} />
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 }

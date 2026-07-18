@@ -16,7 +16,7 @@ export const listDepartments = createServerFn({ method: 'GET' })
 
 export const createDepartment = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: unknown) => departmentCreateSchema.parse(d))
+  .validator((d: unknown) => departmentCreateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const department = await prisma.department.create({ data });
     await writeAudit(context.user.id, 'CREATE', 'Department', department.id, data);
@@ -25,7 +25,7 @@ export const createDepartment = createServerFn({ method: 'POST' })
 
 export const updateDepartment = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: unknown) => departmentUpdateSchema.parse(d))
+  .validator((d: unknown) => departmentUpdateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     const department = await prisma.department.update({ where: { id }, data: rest });
@@ -35,7 +35,7 @@ export const updateDepartment = createServerFn({ method: 'POST' })
 
 export const deleteDepartment = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: { id: string }) => {
+  .validator((d: { id: string }) => {
     if (!d?.id) throw new Error('id가 필요합니다.');
     return { id: d.id };
   })

@@ -19,7 +19,7 @@ export const listTeams = createServerFn({ method: 'GET' })
 
 export const getTeam = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
-  .inputValidator((d: { id: string }) => {
+  .validator((d: { id: string }) => {
     if (!d?.id) throw new Error('id가 필요합니다.');
     return { id: d.id };
   })
@@ -37,7 +37,7 @@ export const getTeam = createServerFn({ method: 'GET' })
 
 export const createTeam = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: unknown) => teamCreateSchema.parse(d))
+  .validator((d: unknown) => teamCreateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const team = await prisma.team.create({
       data: { name: data.name, teamNumber: data.teamNumber ?? null, leagueId: data.leagueId },
@@ -48,7 +48,7 @@ export const createTeam = createServerFn({ method: 'POST' })
 
 export const updateTeam = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: unknown) => teamUpdateSchema.parse(d))
+  .validator((d: unknown) => teamUpdateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     const team = await prisma.team.update({
@@ -61,7 +61,7 @@ export const updateTeam = createServerFn({ method: 'POST' })
 
 export const deleteTeam = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: { id: string }) => {
+  .validator((d: { id: string }) => {
     if (!d?.id) throw new Error('id가 필요합니다.');
     return { id: d.id };
   })

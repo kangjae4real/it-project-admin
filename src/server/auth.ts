@@ -12,7 +12,7 @@ export interface CurrentUser {
 
 // 로그인: 자격 검증 후 세션에 userId 저장.
 export const login = createServerFn({ method: 'POST' })
-  .inputValidator((data: { username: string; password: string }) => {
+  .validator((data: { username: string; password: string }) => {
     if (!data?.username?.trim() || !data?.password) {
       throw new Error('아이디와 비밀번호를 입력하세요.');
     }

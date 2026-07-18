@@ -1,15 +1,98 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
-* {
-  box-sizing: border-box;
+@custom-variant dark (&:is(.dark *));
+
+/* Linear 스타일 다크 테마 (docs/engineering/design.md). 단일 다크 테마. */
+:root {
+  --radius: 0.5rem;
+
+  --background: #010102; /* canvas */
+  --foreground: #f7f8f8; /* ink */
+  --card: #0f1011; /* surface-1 */
+  --card-foreground: #f7f8f8;
+  --popover: #0f1011;
+  --popover-foreground: #f7f8f8;
+  --primary: #5e6ad2; /* lavender */
+  --primary-foreground: #ffffff;
+  --secondary: #141516; /* surface-2 */
+  --secondary-foreground: #f7f8f8;
+  --muted: #141516;
+  --muted-foreground: #8a8f98; /* ink-subtle */
+  --accent: #18191a; /* surface-3 */
+  --accent-foreground: #f7f8f8;
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+  --border: #23252a; /* hairline */
+  --input: #23252a;
+  --ring: #5e69d1; /* primary-focus */
 }
 
-html,
-body,
-#app {
-  min-height: 100%;
+/* dark 클래스에도 동일 값(다크 단일 테마라 :root 와 같음). */
+.dark {
+  --background: #010102;
+  --foreground: #f7f8f8;
+  --card: #0f1011;
+  --card-foreground: #f7f8f8;
+  --popover: #0f1011;
+  --popover-foreground: #f7f8f8;
+  --primary: #5e6ad2;
+  --primary-foreground: #ffffff;
+  --secondary: #141516;
+  --secondary-foreground: #f7f8f8;
+  --muted: #141516;
+  --muted-foreground: #8a8f98;
+  --accent: #18191a;
+  --accent-foreground: #f7f8f8;
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+  --border: #23252a;
+  --input: #23252a;
+  --ring: #5e69d1;
 }
 
-body {
-  margin: 0;
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: var(--border);
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--background);
+    color: var(--foreground);
+  }
 }

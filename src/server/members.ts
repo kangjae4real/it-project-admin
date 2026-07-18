@@ -16,7 +16,7 @@ export const listMembers = createServerFn({ method: 'GET' })
 
 export const getMember = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
-  .inputValidator((d: { id: string }) => {
+  .validator((d: { id: string }) => {
     if (!d?.id) throw new Error('id가 필요합니다.');
     return { id: d.id };
   })
@@ -31,7 +31,7 @@ export const getMember = createServerFn({ method: 'GET' })
 
 export const createMember = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: unknown) => memberCreateSchema.parse(d))
+  .validator((d: unknown) => memberCreateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const createData = {
       name: data.name,
@@ -57,7 +57,7 @@ export const createMember = createServerFn({ method: 'POST' })
 
 export const updateMember = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: unknown) => memberUpdateSchema.parse(d))
+  .validator((d: unknown) => memberUpdateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { id } = data;
     const updateData = {
@@ -86,7 +86,7 @@ export const updateMember = createServerFn({ method: 'POST' })
 
 export const deleteMember = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
-  .inputValidator((d: { id: string }) => {
+  .validator((d: { id: string }) => {
     if (!d?.id) throw new Error('id가 필요합니다.');
     return { id: d.id };
   })

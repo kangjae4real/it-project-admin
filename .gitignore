@@ -22,3 +22,4 @@ todos.json
 dev.db
 dev.db-journal
 /src/generated
+.gstack/
