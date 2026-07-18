@@ -22,7 +22,9 @@
     "db:seed": "dotenv -e .env.local -- prisma db seed",
     "db:import": "dotenv -e .env.local -- tsx prisma/import.ts",
     "db:migrate:plan": "dotenv -e .env.production.local -- prisma migrate diff --from-config-datasource --to-schema ./prisma/schema --script",
-    "db:migrate:prod": "dotenv -e .env.production.local -- sh -c 'prisma migrate diff --from-config-datasource --to-schema ./prisma/schema --script | prisma db execute --stdin'"
+    "db:migrate:prod": "dotenv -e .env.production.local -- sh -c 'prisma migrate diff --from-config-datasource --to-schema ./prisma/schema --script | prisma db execute --stdin'",
+    "db:seed:prod": "dotenv -e .env.production.local -- prisma db seed",
+    "db:import:prod": "dotenv -e .env.production.local -- tsx prisma/import.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
