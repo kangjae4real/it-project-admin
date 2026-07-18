@@ -77,14 +77,14 @@ IT 프로젝트 공모전 운영진이 노션과 구글에 흩어진 팀·팀원
 **데이터 모델** (구현·커밋 완료)
 
 ```
-League(리그)      id, name(unique)
-Department(학과)  id, name(unique)
-Team(팀)          id, name, leagueId → League, createdAt, updatedAt, deletedAt
-Member(팀원)      id, name, studentId, departmentId → Department,
+League(리그)      id(uuid), name(unique)
+Department(학과)  id(uuid), name(unique)
+Team(팀)          id(uuid), name, leagueId → League, createdAt, updatedAt, deletedAt
+Member(팀원)      id(uuid), name, studentId, departmentId → Department,
                   droppedOut, teamId → Team, createdAt, updatedAt, deletedAt
 ```
 
-League와 Department는 참조 테이블이다. 학과는 팀원 단위로 붙어서 여러 학과가 섞인 융합팀도 표현된다. 삭제는 soft delete(`deletedAt`)와 `onDelete: Restrict`(사용 중이면 차단)로 처리한다. 중도하차(`droppedOut`)는 삭제와 별개로, 참가 기록을 남긴 채 하차만 표시한다.
+모든 테이블의 기본키(`id`)는 UUID(v7, 시간순 정렬 가능)를 쓴다. 외래키(`leagueId`, `teamId`, `departmentId`)도 같은 문자열 UUID다. League와 Department는 참조 테이블이다. 학과는 팀원 단위로 붙어서 여러 학과가 섞인 융합팀도 표현된다. 삭제는 soft delete(`deletedAt`)와 `onDelete: Restrict`(사용 중이면 차단)로 처리한다. 중도하차(`droppedOut`)는 삭제와 별개로, 참가 기록을 남긴 채 하차만 표시한다.
 
 **아키텍처 결정** (엔지니어링 리뷰에서 확정)
 
