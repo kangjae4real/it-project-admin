@@ -1,0 +1,9 @@
+/// 운영진 계정 (로그인)
+model User {
+  id           String     @id @default(uuid(7))
+  username     String     @unique // 로그인 아이디
+  passwordHash String // WASM/napi 해시 (argon2id) — 네이티브 argon2 미사용
+  name         String
+  createdAt    DateTime   @default(now())
+  auditLogs    AuditLog[]
+}

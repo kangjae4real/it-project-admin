@@ -79,12 +79,16 @@ IT 프로젝트 공모전 운영진이 노션과 구글에 흩어진 팀·팀원
 ```
 League(리그)      id(uuid), name(unique)
 Department(학과)  id(uuid), name(unique)
-Team(팀)          id(uuid), name, leagueId → League, createdAt, updatedAt, deletedAt
-Member(팀원)      id(uuid), name, studentId, departmentId → Department,
-                  droppedOut, teamId → Team, createdAt, updatedAt, deletedAt
+Team(팀)          id(uuid), teamNumber?, name, leagueId → League, createdAt, updatedAt, deletedAt
+Member(팀원)      id(uuid), name, studentId, departmentId → Department, teamId → Team,
+                  isLeader, contact?, droppedOut, createdAt, updatedAt, deletedAt
+User(운영진 계정) id(uuid), username(unique), passwordHash, name, createdAt
+AuditLog          id(uuid), userId → User, action, entity, entityId, changes?, createdAt
 ```
 
-모든 테이블의 기본키(`id`)는 UUID(v7, 시간순 정렬 가능)를 쓴다. 외래키(`leagueId`, `teamId`, `departmentId`)도 같은 문자열 UUID다. League와 Department는 참조 테이블이다. 학과는 팀원 단위로 붙어서 여러 학과가 섞인 융합팀도 표현된다. 삭제는 soft delete(`deletedAt`)와 `onDelete: Restrict`(사용 중이면 차단)로 처리한다. 중도하차(`droppedOut`)는 삭제와 별개로, 참가 기록을 남긴 채 하차만 표시한다.
+모든 테이블의 기본키(`id`)는 UUID(v7, 시간순 정렬 가능)를 쓴다. 외래키(`leagueId`, `teamId`, `departmentId`, `userId`)도 같은 문자열 UUID다. League와 Department는 참조 테이블이다. 학과는 팀원 단위로 붙어서 여러 학과가 섞인 융합팀도 표현된다. 팀원은 팀장 여부(`isLeader`)와 연락처(`contact`, 선택)를 가진다. User는 로그인용 운영진 계정이고, AuditLog는 누가 무엇을 바꿨는지 남기는 변경 이력이다. 삭제는 soft delete(`deletedAt`)와 `onDelete: Restrict`(사용 중이면 차단)로 처리한다. 중도하차(`droppedOut`)는 삭제와 별개로, 참가 기록을 남긴 채 하차만 표시한다.
+
+스키마는 엔티티별 파일로 나눠 `prisma/schema/` 폴더에 둔다(Prisma 멀티파일 스키마). `config.prisma`에 generator와 datasource, 나머지는 모델별로 `league.prisma`, `department.prisma`, `team.prisma`, `member.prisma`, `user.prisma`, `audit.prisma`.
 
 **아키텍처 결정** (엔지니어링 리뷰에서 확정)
 
@@ -113,7 +117,7 @@ Member(팀원)      id(uuid), name, studentId, departmentId → Department,
 
 ## 8. Timeline & Phasing
 
-**Phase 0 (완료)**: 데이터 모델(League/Department/Team/Member), libSQL 어댑터 채택.
+**Phase 0 (완료)**: 데이터 모델(League/Department/Team/Member/User/AuditLog, UUID PK, 멀티파일 스키마), libSQL 어댑터 채택.
 
 **Phase 1 (v1, 다음 단계)**
 1. 인증 골격(`useSession`, WASM 해시, `_authed` 게이트, 운영진 4계정 seed).

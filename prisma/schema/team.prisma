@@ -1,0 +1,14 @@
+/// 팀
+model Team {
+  id         String    @id @default(uuid(7))
+  teamNumber Int? // 팀번호 (선택; 형식이 있으면 String으로 전환)
+  name       String // 팀명
+  leagueId   String // 소속 리그
+  league     League    @relation(fields: [leagueId], references: [id], onDelete: Restrict)
+  members    Member[] // 소속 팀원들
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime? // soft delete (null = 활성)
+
+  @@index([leagueId])
+}

@@ -1,0 +1,6 @@
+/// 학과 (참조 테이블)
+model Department {
+  id      String   @id @default(uuid(7))
+  name    String   @unique // 학과명
+  members Member[]
+}

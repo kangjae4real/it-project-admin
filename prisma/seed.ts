@@ -15,6 +15,7 @@ async function main() {
   // TODO: 실데이터(리그/학과/팀/팀원)가 확정되면 여기서 import.
   // 순서: League + Department → Team(leagueId) → Member(teamId, departmentId).
   // 참조 테이블은 upsert로 재실행 가능하게.
+  // 운영진 4계정(User)도 seed: username + argon2id 해시(passwordHash).
   // 예시:
   // await prisma.department.upsert({ where: { name: '컴퓨터공학과' }, update: {}, create: { name: '컴퓨터공학과' } });
 

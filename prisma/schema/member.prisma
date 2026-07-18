@@ -1,0 +1,19 @@
+/// 팀원
+model Member {
+  id           String     @id @default(uuid(7))
+  name         String // 이름
+  studentId    String // 학번 (앞자리 0 가능성 → String)
+  departmentId String // 학과
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  teamId       String // 소속 팀
+  team         Team       @relation(fields: [teamId], references: [id], onDelete: Restrict)
+  isLeader     Boolean    @default(false) // 팀장 여부 (팀당 1명, 앱 레벨 보장)
+  contact      String? // 연락처 (형식 미정: 전화/이메일/카톡)
+  droppedOut   Boolean    @default(false) // 중도하차 여부
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime? // soft delete (null = 활성)
+
+  @@index([teamId])
+  @@index([departmentId])
+}

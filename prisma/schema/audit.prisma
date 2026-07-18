@@ -1,0 +1,14 @@
+/// 감사 로그 (변경 이력, append-only)
+model AuditLog {
+  id        String   @id @default(uuid(7))
+  userId    String // 변경한 운영진
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  action    String // 'CREATE' | 'UPDATE' | 'DELETE'
+  entity    String // 'Team' | 'Member' | 'Department' | 'League'
+  entityId  String // 대상 레코드 id (uuid)
+  changes   String? // 변경 내용 (JSON 문자열; SQLite는 Json 타입 미지원)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+}

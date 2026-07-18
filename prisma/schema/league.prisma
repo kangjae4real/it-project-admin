@@ -1,0 +1,6 @@
+/// 리그 구분 (참조 테이블)
+model League {
+  id    String @id @default(uuid(7))
+  name  String @unique // 리그명
+  teams Team[]
+}
