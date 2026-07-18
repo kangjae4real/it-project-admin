@@ -11,15 +11,13 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // Clear existing todos
-  await prisma.todo.deleteMany();
+  // TODO: 실데이터(리그/학과/팀/팀원)가 확정되면 여기서 import.
+  // 순서: League + Department → Team(leagueId) → Member(teamId, departmentId).
+  // 참조 테이블은 upsert로 재실행 가능하게.
+  // 예시:
+  // await prisma.department.upsert({ where: { name: '컴퓨터공학과' }, update: {}, create: { name: '컴퓨터공학과' } });
 
-  // Create example todos
-  const todos = await prisma.todo.createMany({
-    data: [{ title: 'Buy groceries' }, { title: 'Read a book' }, { title: 'Workout' }],
-  });
-
-  console.log(`✅ Created ${todos.count} todos`);
+  console.log('✅ Seed complete (no data yet).');
 }
 
 main()

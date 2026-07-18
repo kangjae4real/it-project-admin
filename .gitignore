@@ -17,3 +17,8 @@ todos.json
 
 # oh-my-claudecode
 .omc
+
+# Prisma
+dev.db
+dev.db-journal
+/src/generated
