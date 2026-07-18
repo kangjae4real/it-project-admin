@@ -11,34 +11,33 @@ const adapter = new PrismaLibSql({
 
 const prisma = new PrismaClient({ adapter });
 
-// 운영진 4계정. 초기 비밀번호는 SEED_ADMIN_PASSWORD (없으면 dev 기본값).
-const ADMINS = [
-  { username: 'admin1', name: '운영진 1' },
-  { username: 'admin2', name: '운영진 2' },
-  { username: 'admin3', name: '운영진 3' },
-  { username: 'admin4', name: '운영진 4' },
-];
+// 고정 참조 데이터 (변경 없음).
+const LEAGUES = ['비기너 리그', '프로 리그'];
+const DEPARTMENTS = ['글로벌미디어학부', '디지털미디어학과'];
 
 async function main() {
   console.log('🌱 Seeding database...');
 
-  const initialPassword = process.env.SEED_ADMIN_PASSWORD || 'changeme-1234';
-  for (const admin of ADMINS) {
-    const passwordHash = await hashPassword(initialPassword);
-    await prisma.user.upsert({
-      where: { username: admin.username },
-      update: { name: admin.name },
-      create: { username: admin.username, name: admin.name, passwordHash },
-    });
+  // 고정 리그/학과 (upsert로 멱등).
+  for (const name of LEAGUES) {
+    await prisma.league.upsert({ where: { name }, update: {}, create: { name } });
   }
-  console.log(`✅ 운영진 ${ADMINS.length}계정 seed 완료 (${ADMINS.map((a) => a.username).join(', ')}).`);
-  console.log('⚠️  초기 비밀번호는 SEED_ADMIN_PASSWORD 값입니다. 배포 전 반드시 변경하세요.');
+  for (const name of DEPARTMENTS) {
+    await prisma.department.upsert({ where: { name }, update: {}, create: { name } });
+  }
+  console.log(`✅ 리그 ${LEAGUES.length}개, 학과 ${DEPARTMENTS.length}개 seed 완료.`);
 
-  // TODO: 실데이터(리그/학과/팀/팀원)가 확정되면 여기서 import.
-  // 순서: League + Department → Team(leagueId) → Member(teamId, departmentId).
-  // 참조 테이블은 upsert로 재실행 가능하게.
-  // 예시:
-  // await prisma.department.upsert({ where: { name: '컴퓨터공학과' }, update: {}, create: { name: '컴퓨터공학과' } });
+  // 부트스트랩 운영진 계정 1개. 나머지는 앱의 '운영진 관리'에서 생성.
+  const initialPassword = process.env.SEED_ADMIN_PASSWORD || 'changeme-1234';
+  await prisma.user.upsert({
+    where: { username: 'admin' },
+    update: {},
+    create: { username: 'admin', name: '운영진', passwordHash: await hashPassword(initialPassword) },
+  });
+  console.log('✅ 부트스트랩 계정: admin (초기 비번 = SEED_ADMIN_PASSWORD). 로그인 후 변경/추가하세요.');
+
+  // TODO: 실데이터(팀/팀원)가 확정되면 여기서 import.
+  // 순서: Team(leagueId) → Member(teamId, departmentId). 재실행 가능하게 작성.
 }
 
 main()

@@ -12,8 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
-import { Route as AuthedLeaguesRouteImport } from './routes/_authed/leagues'
-import { Route as AuthedDepartmentsRouteImport } from './routes/_authed/departments'
+import { Route as AuthedAdminsRouteImport } from './routes/_authed/admins'
 import { Route as AuthedTeamsIndexRouteImport } from './routes/_authed/teams/index'
 import { Route as AuthedMembersIndexRouteImport } from './routes/_authed/members/index'
 import { Route as AuthedTeamsTeamIdRouteImport } from './routes/_authed/teams/$teamId'
@@ -32,14 +31,9 @@ const AuthedIndexRoute = AuthedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedLeaguesRoute = AuthedLeaguesRouteImport.update({
-  id: '/leagues',
-  path: '/leagues',
-  getParentRoute: () => AuthedRoute,
-} as any)
-const AuthedDepartmentsRoute = AuthedDepartmentsRouteImport.update({
-  id: '/departments',
-  path: '/departments',
+const AuthedAdminsRoute = AuthedAdminsRouteImport.update({
+  id: '/admins',
+  path: '/admins',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedTeamsIndexRoute = AuthedTeamsIndexRouteImport.update({
@@ -61,16 +55,14 @@ const AuthedTeamsTeamIdRoute = AuthedTeamsTeamIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
-  '/departments': typeof AuthedDepartmentsRoute
-  '/leagues': typeof AuthedLeaguesRoute
+  '/admins': typeof AuthedAdminsRoute
   '/teams/$teamId': typeof AuthedTeamsTeamIdRoute
   '/members/': typeof AuthedMembersIndexRoute
   '/teams/': typeof AuthedTeamsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/departments': typeof AuthedDepartmentsRoute
-  '/leagues': typeof AuthedLeaguesRoute
+  '/admins': typeof AuthedAdminsRoute
   '/': typeof AuthedIndexRoute
   '/teams/$teamId': typeof AuthedTeamsTeamIdRoute
   '/members': typeof AuthedMembersIndexRoute
@@ -80,8 +72,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authed/departments': typeof AuthedDepartmentsRoute
-  '/_authed/leagues': typeof AuthedLeaguesRoute
+  '/_authed/admins': typeof AuthedAdminsRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/teams/$teamId': typeof AuthedTeamsTeamIdRoute
   '/_authed/members/': typeof AuthedMembersIndexRoute
@@ -90,28 +81,14 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/login'
-    | '/departments'
-    | '/leagues'
-    | '/teams/$teamId'
-    | '/members/'
-    | '/teams/'
+    '/' | '/login' | '/admins' | '/teams/$teamId' | '/members/' | '/teams/'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/login'
-    | '/departments'
-    | '/leagues'
-    | '/'
-    | '/teams/$teamId'
-    | '/members'
-    | '/teams'
+  to: '/login' | '/admins' | '/' | '/teams/$teamId' | '/members' | '/teams'
   id:
     | '__root__'
     | '/_authed'
     | '/login'
-    | '/_authed/departments'
-    | '/_authed/leagues'
+    | '/_authed/admins'
     | '/_authed/'
     | '/_authed/teams/$teamId'
     | '/_authed/members/'
@@ -146,18 +123,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/leagues': {
-      id: '/_authed/leagues'
-      path: '/leagues'
-      fullPath: '/leagues'
-      preLoaderRoute: typeof AuthedLeaguesRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/departments': {
-      id: '/_authed/departments'
-      path: '/departments'
-      fullPath: '/departments'
-      preLoaderRoute: typeof AuthedDepartmentsRouteImport
+    '/_authed/admins': {
+      id: '/_authed/admins'
+      path: '/admins'
+      fullPath: '/admins'
+      preLoaderRoute: typeof AuthedAdminsRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/teams/': {
@@ -185,8 +155,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedRouteChildren {
-  AuthedDepartmentsRoute: typeof AuthedDepartmentsRoute
-  AuthedLeaguesRoute: typeof AuthedLeaguesRoute
+  AuthedAdminsRoute: typeof AuthedAdminsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedTeamsTeamIdRoute: typeof AuthedTeamsTeamIdRoute
   AuthedMembersIndexRoute: typeof AuthedMembersIndexRoute
@@ -194,8 +163,7 @@ interface AuthedRouteChildren {
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedDepartmentsRoute: AuthedDepartmentsRoute,
-  AuthedLeaguesRoute: AuthedLeaguesRoute,
+  AuthedAdminsRoute: AuthedAdminsRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedTeamsTeamIdRoute: AuthedTeamsTeamIdRoute,
   AuthedMembersIndexRoute: AuthedMembersIndexRoute,

@@ -1,5 +1,5 @@
 import { Link, Outlet, createFileRoute, redirect, useRouter } from '@tanstack/react-router';
-import { GraduationCap, LayoutDashboard, LogOut, Trophy, UserRound, Users } from 'lucide-react';
+import { LayoutDashboard, LogOut, ShieldCheck, UserRound, Users } from 'lucide-react';
 
 import { getCurrentUser, logout } from '../server/auth';
 import { Button } from '@/components/ui/button';
@@ -19,8 +19,7 @@ const NAV = [
   { to: '/', label: '대시보드', icon: LayoutDashboard, exact: true },
   { to: '/teams', label: '팀', icon: Users, exact: false },
   { to: '/members', label: '팀원', icon: UserRound, exact: false },
-  { to: '/departments', label: '학과', icon: GraduationCap, exact: false },
-  { to: '/leagues', label: '리그', icon: Trophy, exact: false },
+  { to: '/admins', label: '운영진', icon: ShieldCheck, exact: false },
 ] as const;
 
 function AuthedLayout() {
