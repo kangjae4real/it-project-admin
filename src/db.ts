@@ -1,9 +1,11 @@
 import { PrismaClient } from './generated/prisma/client.js';
 
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { PrismaLibSql } from '@prisma/adapter-libsql';
 
-const adapter = new PrismaBetterSqlite3({
+const adapter = new PrismaLibSql({
   url: process.env.DATABASE_URL || 'file:./dev.db',
+  // 로컬은 미설정(file:), Turso 배포 시 DATABASE_AUTH_TOKEN 설정
+  authToken: process.env.DATABASE_AUTH_TOKEN,
 });
 
 declare global {
