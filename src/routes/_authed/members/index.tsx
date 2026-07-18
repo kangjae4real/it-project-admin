@@ -116,6 +116,7 @@ function MembersPage() {
               <TableHead>학번</TableHead>
               <TableHead>학과</TableHead>
               <TableHead>소속 팀</TableHead>
+              <TableHead>전화번호</TableHead>
               <TableHead>상태</TableHead>
               <TableHead className="w-24 text-right">관리</TableHead>
             </TableRow>
@@ -123,14 +124,14 @@ function MembersPage() {
           <TableBody>
             {membersQuery.isLoading && (
               <TableRow>
-                <TableCell colSpan={6} className="text-muted-foreground">
+                <TableCell colSpan={7} className="text-muted-foreground">
                   불러오는 중…
                 </TableCell>
               </TableRow>
             )}
             {!membersQuery.isLoading && rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-muted-foreground">
+                <TableCell colSpan={7} className="text-muted-foreground">
                   결과 없음
                 </TableCell>
               </TableRow>
@@ -141,6 +142,7 @@ function MembersPage() {
                 <TableCell className="text-muted-foreground">{m.studentId}</TableCell>
                 <TableCell>{m.department.name}</TableCell>
                 <TableCell>{m.team.name}</TableCell>
+                <TableCell className="text-muted-foreground">{m.phone ?? '-'}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
                     {m.isLeader && <Badge>팀장</Badge>}
@@ -162,6 +164,7 @@ function MembersPage() {
                           teamId: m.teamId,
                           isLeader: m.isLeader,
                           contact: m.contact,
+                          phone: m.phone,
                           droppedOut: m.droppedOut,
                         });
                         setFormOpen(true);

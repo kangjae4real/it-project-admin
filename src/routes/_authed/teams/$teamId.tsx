@@ -78,6 +78,7 @@ function TeamDetailPage() {
               <TableHead>이름</TableHead>
               <TableHead>학번</TableHead>
               <TableHead>학과</TableHead>
+              <TableHead>전화번호</TableHead>
               <TableHead>상태</TableHead>
               <TableHead className="w-24 text-right">관리</TableHead>
             </TableRow>
@@ -85,7 +86,7 @@ function TeamDetailPage() {
           <TableBody>
             {team.members.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-muted-foreground">
+                <TableCell colSpan={6} className="text-muted-foreground">
                   팀원이 없습니다.
                 </TableCell>
               </TableRow>
@@ -95,6 +96,7 @@ function TeamDetailPage() {
                 <TableCell className="font-medium">{m.name}</TableCell>
                 <TableCell className="text-muted-foreground">{m.studentId}</TableCell>
                 <TableCell>{m.department.name}</TableCell>
+                <TableCell className="text-muted-foreground">{m.phone ?? '-'}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
                     {m.isLeader && <Badge>팀장</Badge>}
@@ -116,6 +118,7 @@ function TeamDetailPage() {
                           teamId: m.teamId,
                           isLeader: m.isLeader,
                           contact: m.contact,
+                          phone: m.phone,
                           droppedOut: m.droppedOut,
                         });
                         setFormOpen(true);

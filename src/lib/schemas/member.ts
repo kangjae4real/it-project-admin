@@ -7,6 +7,7 @@ export const memberCreateSchema = z.object({
   teamId: z.string().min(1, '팀을 선택하세요.'),
   isLeader: z.boolean().optional().default(false),
   contact: z.string().trim().min(1).nullish(),
+  phone: z.string().trim().min(1).nullish(),
   droppedOut: z.boolean().optional().default(false),
 });
 

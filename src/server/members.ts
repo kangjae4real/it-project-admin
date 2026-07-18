@@ -40,6 +40,7 @@ export const createMember = createServerFn({ method: 'POST' })
       teamId: data.teamId,
       isLeader: data.isLeader,
       contact: data.contact ?? null,
+      phone: data.phone ?? null,
       droppedOut: data.droppedOut,
     };
     // 팀장 유일성: 새 팀장 지정 시 같은 팀의 기존 팀장 해제.
@@ -67,6 +68,7 @@ export const updateMember = createServerFn({ method: 'POST' })
       teamId: data.teamId,
       isLeader: data.isLeader,
       contact: data.contact ?? null,
+      phone: data.phone ?? null,
       droppedOut: data.droppedOut,
     };
     const member = data.isLeader

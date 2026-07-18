@@ -84,18 +84,20 @@ League(리그)      id(uuid), name(unique)
 Department(학과)  id(uuid), name(unique)
 Team(팀)          id(uuid), teamNumber?, name, leagueId → League, createdAt, updatedAt, deletedAt
 Member(팀원)      id(uuid), name, studentId, departmentId → Department, teamId → Team,
-                  isLeader, contact?, droppedOut, createdAt, updatedAt, deletedAt
+                  isLeader, phone?, contact?, droppedOut, createdAt, updatedAt, deletedAt
 User(운영진 계정) id(uuid), username(unique), passwordHash, name, createdAt
 AuditLog          id(uuid), userId → User, action, entity, entityId, changes?, createdAt
 ```
 
-모든 테이블의 기본키(`id`)는 UUID(v7, 시간순 정렬 가능)를 쓴다. 외래키(`leagueId`, `teamId`, `departmentId`, `userId`)도 같은 문자열 UUID다. League와 Department는 참조 테이블이다. 학과는 팀원 단위로 붙어서 여러 학과가 섞인 융합팀도 표현된다. 팀원은 팀장 여부(`isLeader`)와 연락처(`contact`, 선택)를 가진다. User는 로그인용 운영진 계정이고, AuditLog는 누가 무엇을 바꿨는지 남기는 변경 이력이다. 삭제는 soft delete(`deletedAt`)와 `onDelete: Restrict`(사용 중이면 차단)로 처리한다. 중도하차(`droppedOut`)는 삭제와 별개로, 참가 기록을 남긴 채 하차만 표시한다.
+모든 테이블의 기본키(`id`)는 UUID(v7, 시간순 정렬 가능)를 쓴다. 외래키(`leagueId`, `teamId`, `departmentId`, `userId`)도 같은 문자열 UUID다. League와 Department는 참조 테이블이다. 학과는 팀원 단위로 붙어서 여러 학과가 섞인 융합팀도 표현된다. 팀원은 팀장 여부(`isLeader`), 전화번호(`phone`, 팀장은 신청 시 응답받음), 기타 연락처(`contact`, 선택)를 가진다. User는 로그인용 운영진 계정이고, AuditLog는 누가 무엇을 바꿨는지 남기는 변경 이력이다. 삭제는 soft delete(`deletedAt`)와 `onDelete: Restrict`(사용 중이면 차단)로 처리한다. 중도하차(`droppedOut`)는 삭제와 별개로, 참가 기록을 남긴 채 하차만 표시한다.
 
 스키마는 엔티티별 파일로 나눠 `prisma/schema/` 폴더에 둔다(Prisma 멀티파일 스키마). `config.prisma`에 generator와 datasource, 나머지는 모델별로 `league.prisma`, `department.prisma`, `team.prisma`, `member.prisma`, `user.prisma`, `audit.prisma`.
 
 **고정 참조 데이터**: 리그(비기너 리그·프로 리그)와 학과(글로벌미디어학부·디지털미디어학과)는 고정값이라 seed로만 넣고 앱에서 관리하지 않는다(전용 관리 화면 없음). 팀·팀원 폼에서는 select로 고른다.
 
 **계정 관리**: 공개 회원가입은 없다. 로그인한 운영진이 '운영진' 화면에서 새 계정(아이디·이름·비밀번호)을 만들고, 자기 자신을 제외한 계정을 삭제할 수 있다. 초기 부트스트랩 계정 1개는 seed로 넣는다(username `admin`).
+
+**데이터 import**: 참가 신청 응답 xlsx는 `npm run db:import -- "<경로>"`로 넣는다(SheetJS 파싱). 리그/학과 고정값은 유지하고 팀·팀원은 초기화 후 재삽입해 멱등. 처리 규칙: 학과 표기 정규화(`글로벌미디어`→`글로벌미디어학부` 등), 팀장의 학번과 겹치는 팀원 중복 제거, `학과/학번/이름/역할`의 4번째 값 무시, 슬래시·공백 구분 모두 지원. 팀장 전화번호는 팀장 `phone`에 저장.
 
 **아키텍처 결정** (엔지니어링 리뷰에서 확정)
 

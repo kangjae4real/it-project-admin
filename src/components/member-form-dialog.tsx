@@ -20,6 +20,7 @@ export type MemberEdit = {
   teamId: string;
   isLeader: boolean;
   contact: string | null;
+  phone: string | null;
   droppedOut: boolean;
 };
 
@@ -31,6 +32,7 @@ type FormState = {
   isLeader: boolean;
   droppedOut: boolean;
   contact: string;
+  phone: string;
 };
 
 const empty = (teamId = ''): FormState => ({
@@ -41,6 +43,7 @@ const empty = (teamId = ''): FormState => ({
   isLeader: false,
   droppedOut: false,
   contact: '',
+  phone: '',
 });
 
 export function MemberFormDialog({
@@ -70,6 +73,7 @@ export function MemberFormDialog({
         isLeader: member.isLeader,
         droppedOut: member.droppedOut,
         contact: member.contact ?? '',
+        phone: member.phone ?? '',
       });
     } else {
       setForm(empty(lockedTeamId ?? ''));
@@ -98,6 +102,7 @@ export function MemberFormDialog({
       isLeader: form.isLeader,
       droppedOut: form.droppedOut,
       contact: form.contact.trim() ? form.contact.trim() : null,
+      phone: form.phone.trim() ? form.phone.trim() : null,
     };
     if (member) updateM.mutate({ id: member.id, ...payload });
     else createM.mutate(payload);
@@ -160,9 +165,15 @@ export function MemberFormDialog({
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="m-contact">연락처 (선택)</Label>
-            <Input id="m-contact" className="mt-1.5" value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="전화 / 이메일 / 카톡" />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="m-phone">전화번호 (선택)</Label>
+              <Input id="m-phone" className="mt-1.5" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="010-0000-0000" />
+            </div>
+            <div>
+              <Label htmlFor="m-contact">기타 연락처 (선택)</Label>
+              <Input id="m-contact" className="mt-1.5" value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="이메일 / 카톡 등" />
+            </div>
           </div>
 
           <div className="flex gap-6">

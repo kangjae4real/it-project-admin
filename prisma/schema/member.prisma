@@ -9,6 +9,7 @@ model Member {
   team         Team       @relation(fields: [teamId], references: [id], onDelete: Restrict)
   isLeader     Boolean    @default(false) // 팀장 여부 (팀당 1명, 앱 레벨 보장)
   contact      String? // 연락처 (형식 미정: 전화/이메일/카톡)
+  phone        String? // 전화번호 (팀장은 신청 시 응답받음)
   droppedOut   Boolean    @default(false) // 중도하차 여부
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
